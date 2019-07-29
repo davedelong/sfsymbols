@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		55328E3A22EE568B003CC442 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 55328E3922EE568B003CC442 /* main.m */; };
+		55328E4522EE5DFC003CC442 /* SFGlyph.m in Sources */ = {isa = PBXBuildFile; fileRef = 55328E4422EE5DFC003CC442 /* SFGlyph.m */; };
+		55328E4822EE6736003CC442 /* Utilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 55328E4722EE6736003CC442 /* Utilities.m */; };
+		55328E4B22EE8D80003CC442 /* Generator.m in Sources */ = {isa = PBXBuildFile; fileRef = 55328E4A22EE8D80003CC442 /* Generator.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,6 +28,12 @@
 /* Begin PBXFileReference section */
 		55328E3622EE568B003CC442 /* sfsymbols */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = sfsymbols; sourceTree = BUILT_PRODUCTS_DIR; };
 		55328E3922EE568B003CC442 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		55328E4322EE5DFC003CC442 /* SFGlyph.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SFGlyph.h; sourceTree = "<group>"; };
+		55328E4422EE5DFC003CC442 /* SFGlyph.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SFGlyph.m; sourceTree = "<group>"; };
+		55328E4622EE6736003CC442 /* Utilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Utilities.h; sourceTree = "<group>"; };
+		55328E4722EE6736003CC442 /* Utilities.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Utilities.m; sourceTree = "<group>"; };
+		55328E4922EE8D80003CC442 /* Generator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Generator.h; sourceTree = "<group>"; };
+		55328E4A22EE8D80003CC442 /* Generator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Generator.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +67,12 @@
 			isa = PBXGroup;
 			children = (
 				55328E3922EE568B003CC442 /* main.m */,
+				55328E4322EE5DFC003CC442 /* SFGlyph.h */,
+				55328E4422EE5DFC003CC442 /* SFGlyph.m */,
+				55328E4622EE6736003CC442 /* Utilities.h */,
+				55328E4722EE6736003CC442 /* Utilities.m */,
+				55328E4922EE8D80003CC442 /* Generator.h */,
+				55328E4A22EE8D80003CC442 /* Generator.m */,
 			);
 			path = sfsymbols;
 			sourceTree = "<group>";
@@ -118,7 +133,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				55328E4522EE5DFC003CC442 /* SFGlyph.m in Sources */,
+				55328E4B22EE8D80003CC442 /* Generator.m in Sources */,
 				55328E3A22EE568B003CC442 /* main.m in Sources */,
+				55328E4822EE6736003CC442 /* Utilities.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
