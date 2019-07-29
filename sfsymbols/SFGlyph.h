@@ -18,7 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SFGlyph : NSObject
 
-+ (nullable NSArray<SFGlyph *> *)glyphsInSFSymbolsApp:(NSURL *)url;
++ (nullable NSArray<SFGlyph *> *)glyphsInSFSymbolsApp:(NSURL *)url ofSize:(NSInteger)size;
 
 @property (nonatomic, readonly) NSString *name;
 @property (nonatomic, readonly) CGRect boundingBox;

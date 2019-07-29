@@ -14,7 +14,7 @@
 
 void printHelp() {
     NSString *name = [[[[NSProcessInfo processInfo] arguments] firstObject] lastPathComponent];
-    NSString *help = [NSString stringWithFormat:@"%@ -output path/to/output/folder -format [ios-swift, ios-objc, macos-swift, macos-objc, svg]", name];
+    NSString *help = [NSString stringWithFormat:@"%@ -output path/to/output/folder -format [ios-swift, ios-objc, macos-swift, macos-objc, svg] [-font-size number]", name];
     printf("%s\n", help.UTF8String);
 }
 
@@ -37,6 +37,9 @@ int main(int argc, const char * argv[]) {
         
         [[NSFileManager defaultManager] createDirectoryAtURL:outputFolder withIntermediateDirectories:YES attributes:nil error:nil];
         
+        NSString *sizeString = options[@"font-size"];
+        NSInteger size = [sizeString integerValue] ?: 0;
+        
         CFErrorRef err = NULL;
         NSArray<NSURL *> *urls = CFBridgingRelease(LSCopyApplicationURLsForBundleIdentifier(CFSTR("com.apple.SFSymbols"), &err));
         if (err != NULL) {
@@ -47,7 +50,7 @@ int main(int argc, const char * argv[]) {
         
         NSArray<SFGlyph *> *glyphs = nil;
         for (NSURL *url in urls) {
-            glyphs = [SFGlyph glyphsInSFSymbolsApp:url];
+            glyphs = [SFGlyph glyphsInSFSymbolsApp:url ofSize:size];
             if (glyphs != nil) { break; }
         }
         

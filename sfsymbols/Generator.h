@@ -12,6 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class SFGlyph;
 
+// a class cluster to generate path code
 @interface Generator : NSObject
 
 + (nullable instancetype)generatorForFormat:(nullable NSString *)format;

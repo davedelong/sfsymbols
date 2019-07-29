@@ -15,26 +15,32 @@
     CGPoint _offset;
 }
 
-+ (nullable NSArray<SFGlyph *> *)glyphsInSFSymbolsApp:(NSURL *)url {
++ (nullable NSArray<SFGlyph *> *)glyphsInSFSymbolsApp:(NSURL *)url ofSize:(NSInteger)size {
     NSBundle *appBundle = [NSBundle bundleWithURL:url];
     
+    // see if we can find the font in the app bundle
     NSURL *fontURL = [appBundle URLForResource:@"SFSymbolsFallback" withExtension:@"ttf"];
     if (fontURL == nil) { return nil; }
     
+    // load up the font's data
     CGDataProviderRef cgFontProvider = CGDataProviderCreateWithURL((CFURLRef)fontURL);
     if (cgFontProvider == NULL) { return nil; }
     
+    // attempt to create the font
     CGFontRef cgFont = CGFontCreateWithDataProvider(cgFontProvider);
     CGDataProviderRelease(cgFontProvider);
     if (cgFont == NULL) { return nil; }
     
-    CTFontRef font = CTFontCreateWithGraphicsFont(cgFont, 0.0, NULL, NULL);
+    // turn it in to a CTFont
+    CTFontRef font = CTFontCreateWithGraphicsFont(cgFont, (CGFloat)size, NULL, NULL);
     CGFontRelease(cgFont);
     if (font == NULL) { return nil; }
     
+    // pull out the encoded SYMP data, which has the list of glyphs
     NSData *decoded = CTFontCopyDecodedSYMPData(font, 'symp');
     if (decoded == nil) { return nil; }
     
+    // this is CSV data
     NSString *csv = [[NSString alloc] initWithData:decoded encoding:NSUTF8StringEncoding];
     if (csv == nil) { return nil; }
     
@@ -45,6 +51,8 @@
     // the last line is some summary info
     NSUInteger numberOfGlyphs = lines.count - 2;
     for (NSUInteger i = 1; i <= numberOfGlyphs; i++) {
+        
+        // create a glyph from each line of CSV
         NSString *line = lines[i];
         NSArray *bits = ParseCSVLine(line);
         SFGlyph *glyph = [[SFGlyph alloc] initWithPieces:bits inFont:font];
