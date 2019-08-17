@@ -30,7 +30,9 @@ enum ExportFormat: String, CaseIterable, ArgumentKind {
     case macosSwift = "macos-swift"
     case macosObjC = "macos-objc"
     case png = "png"
+    case pdf = "pdf"
     case iconset = "iconset"
+    case iconsetPDF = "iconset-pdf"
     
     var exporter: Exporter {
         switch self {
@@ -40,12 +42,15 @@ enum ExportFormat: String, CaseIterable, ArgumentKind {
             case .macosSwift: return macOSSwiftExporter()
             case .macosObjC: return macOSObjCExporter()
             case .png: return PNGExporter()
+            case .pdf: return PDFExporter()
             case .iconset: return IconsetExporter()
+            case .iconsetPDF: return PDFAssetCatalog()
         }
     }
 }
 
 protocol Exporter {
+    func exportGlyphs(in font: Font, to folder: URL) throws
     func exportGlyph(_ glyph: Glyph, in font: Font, to folder: URL) throws
     func data(for glyph: Glyph, in font: Font) -> Data
 }
@@ -58,7 +63,9 @@ extension Exporter {
         }
         
         for glyph in font.glyphs {
-            try exportGlyph(glyph, in: font, to: folder)
+            try autoreleasepool {
+                try exportGlyph(glyph, in: font, to: folder)
+            }
         }
     }
 }
@@ -226,6 +233,8 @@ struct iOSObjCExporter: Exporter {
     }
 }
 
+// https://stackoverflow.com/a/49011112
+
 struct macOSSwiftExporter: Exporter {
     
     func exportGlyph(_ glyph: Glyph, in font: Font, to folder: URL) throws {
@@ -357,9 +366,13 @@ struct PNGExporter: Exporter {
         try glyphData.write(to: file)
     }
     
-    func data(for glyph: Glyph, in font: Font) -> Data {
-        let image = NSImage(size: glyph.boundingBox.size, flipped: false, drawingHandler: { rect in
+    func data(for glyph: Glyph, in font: Font, scale: CGFloat) -> Data {
+        var size = glyph.boundingBox.size
+        size.width *= scale
+        size.height *= scale
+        let image = NSImage(size: size, flipped: false, drawingHandler: { rect in
             guard let context = NSGraphicsContext.current?.cgContext else { return false }
+            context.scaleBy(x: scale, y: scale)
             
             context.setShouldAntialias(true)
             context.addPath(glyph.cgPath)
@@ -369,19 +382,172 @@ struct PNGExporter: Exporter {
             return true
         })
         
-        return image.tiffRepresentation ?? Data()
+        return image.pngData
+    }
+    
+    func data(for glyph: Glyph, in font: Font) -> Data {
+        return data(for: glyph, in: font, scale: 1.0)
     }
     
 }
 
 struct IconsetExporter: Exporter {
+
+    private let png = PNGExporter()
+    
+    func exportGlyphs(in font: Font, to folder: URL) throws {
+        let assetFolder = folder.appendingPathComponent("SFSymbols.xcassets")
+        try FileManager.default.createDirectory(at: assetFolder, withIntermediateDirectories: true, attributes: nil)
+        
+        let contentsURL = assetFolder.appendingPathComponent("Contents.json")
+        let contentsJSON = """
+{
+  "info" : {
+    "version" : 1,
+    "author" : "xcode"
+  }
+}
+"""
+        try Data(contentsJSON.utf8).write(to: contentsURL)
+        
+        for glyph in font.glyphs {
+            try autoreleasepool {
+                try exportGlyph(glyph, in: font, to: assetFolder)
+            }
+        }
+    }
     
     func exportGlyph(_ glyph: Glyph, in font: Font, to folder: URL) throws {
-        fatalError()
+        let iconset = folder.appendingPathComponent("\(glyph.fullName).iconset")
+        try FileManager.default.createDirectory(at: iconset, withIntermediateDirectories: true, attributes: nil)
+        let contents = """
+{
+  "images" : [
+    {
+      "idiom" : "universal",
+      "filename" : "\(glyph.fullName)@1x.png",
+      "scale" : "1x"
+    },
+    {
+      "idiom" : "universal",
+      "filename" : "\(glyph.fullName)@2x.png",
+      "scale" : "2x"
+    },
+    {
+      "idiom" : "universal",
+      "filename" : "\(glyph.fullName)@3x.png",
+      "scale" : "3x"
+    }
+  ],
+  "info" : {
+    "version" : 1,
+    "author" : "xcode"
+  }
+}
+"""
+        let contentsURL = iconset.appendingPathComponent("Contents.json")
+        try Data(contents.utf8).write(to: contentsURL)
+        
+        for scale in 1...3 {
+            let data = png.data(for: glyph, in: font, scale: CGFloat(scale))
+            let file = iconset.appendingPathComponent("\(glyph.fullName)@\(scale)x.png")
+            try data.write(to: file)
+        }
+    }
+    
+    func data(for glyph: Glyph, in font: Font) -> Data { fatalError() }
+    
+}
+
+struct PDFExporter: Exporter {
+    
+    func exportGlyph(_ glyph: Glyph, in font: Font, to folder: URL) throws {
+        let name = "\(glyph.fullName).pdf"
+        let file = folder.appendingPathComponent(name)
+        let glyphData = data(for: glyph, in: font)
+        try glyphData.write(to: file)
     }
     
     func data(for glyph: Glyph, in font: Font) -> Data {
-        fatalError()
+        let destination = NSMutableData()
+        guard let dataConsumer = CGDataConsumer(data: destination as CFMutableData) else { return Data() }
+        
+        var box = glyph.boundingBox
+        guard let pdf = CGContext(consumer: dataConsumer, mediaBox: &box, nil) else { return Data() }
+        
+        let pageInfo = [
+            kCGPDFContextMediaBox: Data(bytes: &box, count: MemoryLayout<CGRect>.size) as CFData
+        ]
+        pdf.beginPDFPage(pageInfo as CFDictionary)
+        pdf.setShouldAntialias(true)
+        pdf.addPath(glyph.cgPath)
+
+        pdf.setFillColor(NSColor.black.cgColor)
+        pdf.fillPath()
+        pdf.endPDFPage()
+        pdf.closePDF()
+        
+        return destination as Data
+    }
+    
+}
+
+struct PDFAssetCatalog: Exporter {
+    
+    let pdf = PDFExporter()
+    
+    func exportGlyphs(in font: Font, to folder: URL) throws {
+        let assetFolder = folder.appendingPathComponent("SFSymbols.xcassets")
+        try FileManager.default.createDirectory(at: assetFolder, withIntermediateDirectories: true, attributes: nil)
+        
+        let contentsURL = assetFolder.appendingPathComponent("Contents.json")
+        let contentsJSON = """
+{
+  "info" : {
+    "version" : 1,
+    "author" : "xcode"
+  }
+}
+"""
+        try Data(contentsJSON.utf8).write(to: contentsURL)
+        
+        for glyph in font.glyphs {
+            try autoreleasepool {
+                try exportGlyph(glyph, in: font, to: assetFolder)
+            }
+        }
+    }
+    
+    func exportGlyph(_ glyph: Glyph, in font: Font, to folder: URL) throws {
+        let imageset = folder.appendingPathComponent("\(glyph.fullName).imageset")
+        try FileManager.default.createDirectory(at: imageset, withIntermediateDirectories: true, attributes: nil)
+        let contents = """
+{
+  "images" : [
+    {
+      "idiom" : "universal",
+      "filename" : "\(glyph.fullName).pdf"
+    }
+  ],
+  "info" : {
+    "version" : 1,
+    "author" : "xcode"
+  },
+  "properties" : {
+    "preserves-vector-representation" : true
+  }
+}
+"""
+        let contentsURL = imageset.appendingPathComponent("Contents.json")
+        try Data(contents.utf8).write(to: contentsURL)
+        
+        let pdfData = data(for: glyph, in: font)
+        let file = imageset.appendingPathComponent("\(glyph.fullName).pdf")
+        try pdfData.write(to: file)
+    }
+    
+    func data(for glyph: Glyph, in font: Font) -> Data {
+        return pdf.data(for: glyph, in: font)
     }
     
 }

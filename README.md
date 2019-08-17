@@ -29,7 +29,18 @@ There are several options you may specify:
 
 - `--output-folder`: The folder where exported shapes should be created. Defaults to the current working directory.
 
-- `--format`: The format in which you'd like shapes exported. Valid values are `ios-swift`, `ios-objc`, `macos-swift`, `macos-objc`, `svg`, `png`, and `iconset`. The default value is `svg`.
+- `--format`: The format in which you'd like shapes exported. Valid values are:
+    - `ios-swift`: `UIBezierPath`-based code in Swift 
+    - `ios-objc`:  `UIBezierPath`-based code in Objective-C
+    - `macos-swift`:  `NSBezierPath`-based code in Swift
+    - `macos-objc`:  `NSBezierPath`-based code in Objective-C
+    - `svg`: SVG files
+    - `png`: PNG images
+    - `pdf`: PDF images 
+    - `iconset`: An `SFSymbols.xcassets` bundle of 1x, 2x, and 3x PNGs
+    - `iconset-pdf`: An `SFSymbols.xcassets` bundle of vector PDFs
+    
+    The default value is `svg`.
 
 ## Disclaimer
 
