@@ -78,6 +78,12 @@ struct SVGExporter: Exporter {
      
     func data(for glyph: Glyph, in font: Font) -> Data {
         var lines = Array<String>()
+        if let restriction = glyph.restrictionNote {
+            lines.append("<!--")
+            lines.append("    " + restriction)
+            lines.append("-->")
+        }
+        
         let direction = glyph.allowsMirroring ? "" : " direction='ltr'"
         lines.append("<svg width='\(glyph.boundingBox.width)px' height='\(glyph.boundingBox.height)px'\(direction) xmlns='http://www.w3.org/2000/svg' version='1.1'>")
         lines.append("<g fill-rule='nonzero' transform='scale(1,-1) translate(0,-\(glyph.boundingBox.height))'>")
@@ -115,11 +121,15 @@ struct iOSSwiftExporter: Exporter {
     }
     
     func data(for glyph: Glyph, in font: Font) -> Data {
+        var restriction = ""
+        if let r = glyph.restrictionNote {
+            restriction = "\n    // \(r)"
+        }
         let header = """
         import UIKit
 
         extension UIBezierPath {
-
+            \(restriction)
             static var \(glyph.identifierName): UIBezierPath {
         
         """
@@ -162,12 +172,17 @@ struct iOSObjCExporter: Exporter {
         let glyphData = data(for: glyph, in: font)
         try glyphData.write(to: file)
         
+        var restriction = ""
+        if let r = glyph.restrictionNote {
+            restriction = "\n// \(r)"
+        }
+        
         let headerFile = folder.appendingPathComponent("UIBezierPath+\(glyph.fullName).h")
         let header = """
         #import <UIKit/UIKit.h>
 
         @interface UIBezierPath (\(glyph.identifierName))
-        
+        \(restriction)
         @property (class, readonly, nonnull) UIBezierPath *\(glyph.identifierName);
         
         @end
@@ -225,11 +240,16 @@ struct macOSSwiftExporter: Exporter {
     }
     
     func data(for glyph: Glyph, in font: Font) -> Data {
+        var restriction = ""
+        if let r = glyph.restrictionNote {
+            restriction = "\n    // \(r)"
+        }
+        
         let header = """
         import AppKit
 
         extension NSBezierPath {
-
+            \(restriction)
             static var \(glyph.identifierName): NSBezierPath {
         
         """
@@ -269,10 +289,15 @@ struct macOSObjCExporter: Exporter {
         let glyphData = data(for: glyph, in: font)
         try glyphData.write(to: file)
         
+        var restriction = ""
+        if let r = glyph.restrictionNote {
+            restriction = "\n// \(r)"
+        }
+        
         let headerFile = folder.appendingPathComponent("NSBezierPath+\(glyph.fullName).h")
         let header = """
         #import <AppKit/AppKit.h>
-
+        \(restriction)
         @interface NSBezierPath (\(glyph.identifierName))
         
         @property (class, readonly, nonnull) NSBezierPath *\(glyph.identifierName);

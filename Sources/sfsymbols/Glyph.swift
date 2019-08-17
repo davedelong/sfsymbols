@@ -73,7 +73,7 @@ struct Glyph {
         
 
         let path = CTFontCreatePathForGlyph(font, glyph, nil)
-        var transform = CGAffineTransform(translationX: 0, y: -originOffset.y)
+        var transform = CGAffineTransform(translationX: 0, y: -(2 * originOffset.y))
         let copy = path?.copy(using: &transform)
         self.cgPath = copy ?? CGPath(rect: CGRect(origin: .zero, size: paddedBox.size), transform: nil)
         

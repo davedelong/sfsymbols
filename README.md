@@ -21,7 +21,7 @@ There are several options you may specify:
     - `heavy`
     - `black`
     
-    If you leave out this argument, then `regular` will be used.
+    If you leave out this argument, then `regular` will be used. Also, depending on the specified `--font-file`, not all copies of the SF Symbols font may contain all weights.
     
 - `--font-size`: The size (in points) to use when exporting symbols. If you leave this argument out, then the default size of `44` will be used.
 
