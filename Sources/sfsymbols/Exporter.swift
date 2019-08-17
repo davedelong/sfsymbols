@@ -95,7 +95,7 @@ struct SVGExporter: Exporter {
         lines.append("<svg width='\(glyph.boundingBox.width)px' height='\(glyph.boundingBox.height)px'\(direction) xmlns='http://www.w3.org/2000/svg' version='1.1'>")
         lines.append("<g fill-rule='nonzero' transform='scale(1,-1) translate(0,-\(glyph.boundingBox.height))'>")
         lines.append("<path fill='black' stroke='black' fill-opacity='1.0' stroke-width='\(font.strokeWidth)' d='")
-        glyph.enumerateElements { element in
+        glyph.enumerateElements { (_, element) in
             switch element {
                 case .move(let p): lines.append("    M \(format(p))")
                 case .line(let p): lines.append("    L \(format(p))")
@@ -150,7 +150,7 @@ struct iOSSwiftExporter: Exporter {
         
         var lines = Array<String>()
         lines.append("let path = UIBezierPath(rect: CGRect(x: 0, y: 0, width: \(glyph.boundingBox.width), height: \(glyph.boundingBox.height)))")
-        glyph.enumerateElements { element in
+        glyph.enumerateElements { (_, element) in
             switch element {
                 case .move(let p): lines.append("path.move(to: \(format(p)))")
                 case .line(let p): lines.append("path.addLine(to: \(format(p)))")
@@ -216,7 +216,7 @@ struct iOSObjCExporter: Exporter {
         
         var lines = Array<String>()
         lines.append("UIBezierPath *path = [[UIBezierPath alloc] initWithRect:CGRectMake(x: 0, y: 0, width: \(glyph.boundingBox.width), height: \(glyph.boundingBox.height))];")
-        glyph.enumerateElements { element in
+        glyph.enumerateElements { (_, element) in
             switch element {
                 case .move(let p): lines.append("[path moveToPoint:\(format(p))];")
                 case .line(let p): lines.append("[path addLineToPoint:\(format(p))];")
@@ -232,8 +232,6 @@ struct iOSObjCExporter: Exporter {
         return Data(file.utf8)
     }
 }
-
-// https://stackoverflow.com/a/49011112
 
 struct macOSSwiftExporter: Exporter {
     
@@ -272,11 +270,14 @@ struct macOSSwiftExporter: Exporter {
         
         var lines = Array<String>()
         lines.append("let path = NSBezierPath(rect: NSRect(x: 0, y: 0, width: \(glyph.boundingBox.width), height: \(glyph.boundingBox.height)))")
-        glyph.enumerateElements { element in
+        glyph.enumerateElements { (current, element) in
             switch element {
                 case .move(let p): lines.append("path.move(to: \(format(p)))")
                 case .line(let p): lines.append("path.line(to: \(format(p)))")
-                case .quadCurve(let p, let c): lines.append("path.addQuadCurve(to: \(format(p)), controlPoint: \(format(c)))")
+                case .quadCurve(let p, let c):
+                    // NSBezierPath does not have a quadratic curve method
+                    let (c1, c2) = NSBezierPath.cubicPointsFromQuadratic(currentPoint: current!, destinationPoint: p, controlPoint: c)
+                    lines.append("path.curve(to: \(format(p)), controlPoint1: \(format(c1)), controlPoint2: \(format(c2)))")
                 case .curve(let p, let c1, let c2): lines.append("path.curve(to: \(format(p)), controlPoint1: \(format(c1)), controlPoint2: \(format(c2)))")
                 case .close: lines.append("path.close()")
             }
@@ -339,11 +340,14 @@ struct macOSObjCExporter: Exporter {
         
         var lines = Array<String>()
         lines.append("NSBezierPath *path = [[NSBezierPath alloc] initWithRect:NSRectMake(x: 0, y: 0, width: \(glyph.boundingBox.width), height: \(glyph.boundingBox.height))];")
-        glyph.enumerateElements { element in
+        glyph.enumerateElements { (current, element) in
             switch element {
                 case .move(let p): lines.append("[path moveToPoint:\(format(p))];")
                 case .line(let p): lines.append("[path lineToPoint:\(format(p))];")
-                case .quadCurve(let p, let c): lines.append("[path addQuadCurveToPoint:\(format(p)) controlPoint:\(format(c))];")
+                case .quadCurve(let p, let c):
+                    // NSBezierPath does not have a quadratic curve method
+                    let (c1, c2) = NSBezierPath.cubicPointsFromQuadratic(currentPoint: current!, destinationPoint: p, controlPoint: c)
+                    lines.append("[path curveToPoint:\(format(p)) controlPoint1:\(format(c1)) controlPoint2:\(format(c2))];")
                 case .curve(let p, let c1, let c2): lines.append("[path curveToPoint:\(format(p)) controlPoint1:\(format(c1)) controlPoint2:\(format(c2))];")
                 case .close: lines.append("[path close];")
             }

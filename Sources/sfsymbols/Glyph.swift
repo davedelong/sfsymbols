@@ -97,7 +97,9 @@ struct Glyph {
         }
     }
     
-    func enumerateElements(enumerator: (Element) -> Void) {
+    func enumerateElements(enumerator: (CGPoint?, Element) -> Void) {
+        
+        var currentPoint: CGPoint?
         cgPath.applyWithBlock { elementRef in
             let pathElement = elementRef.pointee
             
@@ -108,16 +110,34 @@ struct Glyph {
             ]
             
             let element: Element
+            let newCurrentPoint: CGPoint?
+            
             switch pathElement.type {
-                case .moveToPoint: element = .move(points[0])
-                case .addLineToPoint: element = .line(points[0])
-                case .addQuadCurveToPoint: element = .quadCurve(points[0], points[1])
-                case .addCurveToPoint: element = .curve(points[0], points[1], points[2])
-                case .closeSubpath: element = .close
+                case .moveToPoint:
+                    element = .move(points[0])
+                    newCurrentPoint = points[0]
+                
+                case .addLineToPoint:
+                    element = .line(points[0])
+                    newCurrentPoint = points[0]
+                
+                case .addQuadCurveToPoint:
+                    element = .quadCurve(points[0], points[1])
+                    newCurrentPoint = points[0]
+                
+                case .addCurveToPoint:
+                    element = .curve(points[0], points[1], points[2])
+                    newCurrentPoint = points[0]
+                
+                case .closeSubpath:
+                    element = .close
+                    newCurrentPoint = nil
+                
                 @unknown default: return
             }
             
-            enumerator(element)
+            enumerator(currentPoint, element)
+            currentPoint = newCurrentPoint
         }
     }
     
