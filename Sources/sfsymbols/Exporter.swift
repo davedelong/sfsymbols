@@ -521,12 +521,13 @@ struct PDFAssetCatalog: Exporter {
     func exportGlyph(_ glyph: Glyph, in font: Font, to folder: URL) throws {
         let imageset = folder.appendingPathComponent("\(glyph.fullName).imageset")
         try FileManager.default.createDirectory(at: imageset, withIntermediateDirectories: true, attributes: nil)
+        let mirrors = glyph.allowsMirroring ? "" : ",\n      \"language-direction\" : \"left-to-right\""
         let contents = """
 {
   "images" : [
     {
       "idiom" : "universal",
-      "filename" : "\(glyph.fullName).pdf"
+      "filename" : "\(glyph.fullName).pdf"\(mirrors)
     }
   ],
   "info" : {
