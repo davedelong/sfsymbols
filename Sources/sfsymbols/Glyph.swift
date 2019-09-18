@@ -8,6 +8,45 @@
 import Foundation
 import SPMUtility
 
+struct GlyphList {
+  
+  static func list(_ pathArgument: PathArgument) throws -> GlyphList {
+    guard FileManager.default.fileExists(atPath: pathArgument.path.pathString) else {
+      throw ArgumentConversionError.custom("Invalid list path: \(pathArgument.path.description)")
+    }
+    guard let data = try? Data(contentsOf: pathArgument.path.asURL), let stringValue = String(data: data, encoding: .utf8) else {
+      throw ArgumentConversionError.custom("Invalid file format for list.")
+    }
+    let separatedByLine = stringValue.split(separator: "\n").map { String($0) }
+    return GlyphList(separatedByLine)
+  }
+  
+  let names: Set<String>
+  
+  func filter(_ glyphs: [Glyph]) -> [Glyph] {
+    guard !self.names.isEmpty else {
+      return glyphs
+    }
+    return glyphs.filter {
+      names.contains($0.fullName)
+    }
+  }
+  
+  /// Checks to see if the provided name is valid.
+  func validates(_ glyphs: [Glyph]) {
+    let glyphNames: Set<String> = Set(glyphs.map { $0.fullName })
+    self.names.forEach {
+      if !glyphNames.contains($0) {
+        print("Invalid symbol name: \($0).")
+      }
+    }
+  }
+  
+  init(_ values: [String]) {
+    self.names = Set(values)
+  }
+}
+
 struct Glyph {
     
     enum Size: String, CaseIterable, ArgumentKind {

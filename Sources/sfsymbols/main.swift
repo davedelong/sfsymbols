@@ -9,6 +9,7 @@ let parser = ArgumentParser(usage: "<options>", overview: "Export symbols from t
 let fontFile: OptionArgument<PathArgument> = parser.add(option: "--font-file", kind: PathArgument.self, usage: "A path to the SFSymbols ttf file. If omitted, the font will be located in a copy of SF Symbols.app")
 let fontWeight: OptionArgument<Font.Weight> = parser.add(option: "--font-weight", kind: Font.Weight.self, usage: "The weight of the SFSymbols font to use. Default value: 'regular'")
 let fontSize: OptionArgument<Int> = parser.add(option: "--font-size", kind: Int.self, usage: "The size in points to use when exporting symbols. Default value: '44'")
+let glyphList: OptionArgument<PathArgument> = parser.add(option: "--list", kind: PathArgument.self, usage: "A path to the list of symbols you want to create.")
 let symbolSize: OptionArgument<Glyph.Size> = parser.add(option: "--symbol-size", kind: Glyph.Size.self, usage: "Ths size of symbol to use. Default value: 'medium'")
 
 let format: OptionArgument<ExportFormat> = parser.add(option: "--format", kind: ExportFormat.self, usage: "The formatter to use when exporting. Default value: 'svg'")
@@ -25,11 +26,20 @@ func export(using arguments: ArgumentParser.Result) throws {
         throw ArgumentConversionError.custom("Unable to locate SF Symbols font file")
     }
     
+    var list: GlyphList? = nil
+    if let listPath = arguments.get(glyphList) {
+      list = try GlyphList.list(listPath)
+    }
+  
     let weight = arguments.get(fontWeight) ?? .regular
     let size = arguments.get(fontSize) ?? 44
     let glyphSize = arguments.get(symbolSize) ?? .medium
     
-    guard let font = Font(url: fontFile, size: CGFloat(size), glyphSize: glyphSize, weight: weight) else {
+    guard let font = Font(url: fontFile,
+                          size: CGFloat(size),
+                          glyphSize: glyphSize,
+                          weight: weight,
+                          list: list) else {
         throw ArgumentConversionError.custom("Unable to load SF Symbols font")
     }
     
@@ -51,9 +61,3 @@ do {
 } catch let error {
     print(error.localizedDescription)
 }
-
-//let urls = Font.sfsymbolsFonts()
-//
-//let font = urls.compactMap { Font(url: $0) }.first
-////print(font)
-//print(font?.glyphs)

@@ -38,7 +38,11 @@ struct Font {
         }
     }
     
-    init?(url: URL, size: CGFloat, glyphSize: Glyph.Size, weight: Weight) {
+    init?(url: URL,
+          size: CGFloat,
+          glyphSize: Glyph.Size,
+          weight: Weight,
+          list: GlyphList?) {
         guard let provider = CGDataProvider(url: url as CFURL) else { return nil }
         guard let cgFont = CGFont(provider) else { return nil }
         
@@ -59,8 +63,14 @@ struct Font {
         self.font = font
         self.weight = weight
         self.size = size
-        self.glyphs = csvLines.compactMap { line -> Glyph? in
+      
+        let glyphs = csvLines.compactMap { line -> Glyph? in
             return Glyph(size: glyphSize, pieces: CSVFields(line), inFont: font)
+        }
+        if let glyphList = list {          glyphList.validates(glyphs)
+          self.glyphs = glyphList.filter(glyphs)
+        } else {
+          self.glyphs = glyphs
         }
     }
 }
