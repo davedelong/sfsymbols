@@ -29,7 +29,7 @@ func export(using arguments: ArgumentParser.Result) throws {
     let weight = arguments.get(fontWeight) ?? .regular
     let size = arguments.get(fontSize) ?? 44
     let glyphSize = arguments.get(symbolSize) ?? .medium
-    let pattern = arguments.get(symbolName)
+    let pattern = arguments.get(symbolName) ?? "*"
     
     guard let font = Font(url: fontFile, size: CGFloat(size), glyphSize: glyphSize, weight: weight) else {
         throw ArgumentConversionError.custom("Unable to load SF Symbols font")
