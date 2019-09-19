@@ -2,9 +2,25 @@
 
 `sfsymbols` is a quick-and-dirty command-line tool to export the shapes inside the SF Symbols font.
 
-## Usage
+## Install
+
+#### Command line
+
+```sh
+cd sfsymbols
+swift build -c release
+ln -s ${PWD}/.build/release/sfsymbols /usr/local/bin/sfsymbols
+```
+
+#### Xcode
 
 Open the `Package.swift` and build the project, then run the resulting `sfsymbols` tool from the command line.
+
+## Usage
+
+```sh
+sfsymbols --output symbols --format png
+```
 
 There are several options you may specify:
 
@@ -27,7 +43,7 @@ There are several options you may specify:
 
 - `--symbol-size`: The size of the shape to use. Valid values are `small`, `medium`, and `large`. The default value is `large`.
 
-- `--output-folder`: The folder where exported shapes should be created. Defaults to the current working directory.
+- `--output`: The folder where exported shapes should be created. Defaults to the current working directory.
 
 - `--format`: The format in which you'd like shapes exported. Valid values are:
     - `ios-swift`: `UIBezierPath`-based code in Swift 
