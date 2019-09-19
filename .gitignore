@@ -1,3 +1,15 @@
+
+# Created by https://www.gitignore.io/api/swiftpm
+# Edit at https://www.gitignore.io/?templates=swiftpm
+
+### SwiftPM ###
+Packages
+.build/
 xcuserdata
 .swiftpm
 Package.resolved
+DerivedData/
+*.xcodeproj
+
+
+# End of https://www.gitignore.io/api/swiftpm
