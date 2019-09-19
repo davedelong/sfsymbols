@@ -67,14 +67,22 @@ struct Glyph {
         
         var box = CGRect.zero
         CTFontGetBoundingRectsForGlyphs(font, .default, &glyph, &box, 1)
-        let paddedBox = CGRect(x: 0, y: 0, width: box.width + (2 * box.origin.x), height: box.height - (2 * box.origin.y))
+        let paddedBox: CGRect
+        let paddedBoxMultiplier: CGFloat = box.origin.y > 0 ? 2 : -2
+        paddedBox = CGRect(x: 0, y: 0, width: box.width + (2 * box.origin.x), height: box.height + (paddedBoxMultiplier * box.origin.y))
+        
         self.boundingBox = paddedBox
         self.originOffset = box.origin
         
-
         let path = CTFontCreatePathForGlyph(font, glyph, nil)
-        var transform = CGAffineTransform(translationX: 0, y: -(2 * originOffset.y))
-        let copy = path?.copy(using: &transform)
+        
+        let copy: CGPath?
+        if box.origin.y > 0 {
+          copy = path
+        } else {
+          var transform = CGAffineTransform(translationX: 0, y: -2 * originOffset.y)
+          copy = path?.copy(using: &transform)
+        }
         self.cgPath = copy ?? CGPath(rect: CGRect(origin: .zero, size: paddedBox.size), transform: nil)
         
         self.fullName = pieces[12]
