@@ -53,7 +53,7 @@ struct Font {
         guard let data = CTFontCopyDecodedSYMPData(font) else { return nil }
         guard let csv = String(data: data, encoding: .utf8) else { return nil }
         
-        // drop the first and last lines (headers + summar, respectively)
+        // drop the first and last lines (headers + summary, respectively)
         let csvLines = csv.components(separatedBy: "\r\n").dropFirst().dropLast()
         
         self.font = font
