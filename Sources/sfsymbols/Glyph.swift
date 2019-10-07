@@ -44,21 +44,15 @@ struct Glyph {
     
     let identifierName: String
     let fullName: String
-    let baseName: String
-    let isFilled: Bool
-    let variant: String?
-    let isRTL: Bool
     
     let boundingBox: CGRect
     let allowsMirroring: Bool
-    let appleOnly: Bool
-    let keywords: Array<String>
     let restrictionNote: String?
     
     
     init?(size: Size, pieces: Array<String>, inFont font: CTFont) {
-        guard pieces.count > 43 else { return nil }
-        let name = "uni\(pieces[1]).\(size.rawValue)"
+        guard pieces.count == 12 else { return nil }
+        let name = "uni\(pieces[3]).\(size.rawValue)"
         var glyph = CTFontGetGlyphWithName(font, name as CFString)
         if glyph == 0 { return nil }
         
@@ -85,23 +79,14 @@ struct Glyph {
         }
         self.cgPath = copy ?? CGPath(rect: CGRect(origin: .zero, size: paddedBox.size), transform: nil)
         
-        self.fullName = pieces[12]
+        self.fullName = pieces[10]
         self.identifierName = "symbol" + fullName.components(separatedBy: ".").map { $0.capitalized }.joined()
-        self.baseName = pieces[13]
-        self.variant = pieces[15].isEmpty ? nil : pieces[15]
-        self.isFilled = pieces[16] == "fill"
-        self.isRTL = pieces[17] != ""
+        self.allowsMirroring = Bool(pieces[6] != "")
         
-        let keywords = pieces[38].trimmingCharacters(in: CharacterSet(charactersIn: "\""))
-        self.keywords = CSVFields(keywords).map { $0.trimmingCharacters(in: .whitespaces) }
-        
-        self.appleOnly = Bool(pieces[8].lowercased()) ?? false
-        self.allowsMirroring = Bool(pieces[42].lowercased()) ?? false
-        
-        if pieces[46].isEmpty == true {
+        if pieces[5].isEmpty == true {
             self.restrictionNote = nil
         } else {
-            self.restrictionNote = pieces[46]
+            self.restrictionNote = pieces[5]
         }
     }
     

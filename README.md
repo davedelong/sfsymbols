@@ -8,7 +8,7 @@
 
 ```sh
 cd sfsymbols
-swift build -c release
+swift build -c release # swift build -Xswiftc "-target" -Xswiftc "x86_64-apple-macosx10.14"
 ln -s ${PWD}/.build/release/sfsymbols /usr/local/bin/sfsymbols
 ```
 
