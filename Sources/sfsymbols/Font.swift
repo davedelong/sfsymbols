@@ -17,6 +17,43 @@ typealias URL = Foundation.URL
 struct Font {
     typealias Weight = NSFont.Weight
     
+    enum Family: String, CaseIterable, ArgumentKind {
+        static let completion: ShellCompletion = .values(allCases.map { (value: $0.rawValue, description: $0.rawValue) })
+        
+        case pro = "Pro"
+        case compact = "Compact"
+        
+        init(argument: String) throws {
+            guard let s = Family(rawValue: argument) else {
+                throw ArgumentConversionError.unknown(value: argument)
+            }
+            self = s
+        }
+    }
+    
+    enum Variant: String, CaseIterable, ArgumentKind {
+        static let completion: ShellCompletion = .values(allCases.map { (value: $0.rawValue, description: $0.rawValue) })
+        
+        case display = "Display"
+        case rounded = "Rounded"
+        case text = "Text"
+        
+        init(argument: String) throws {
+            guard let s = Variant(rawValue: argument) else {
+                throw ArgumentConversionError.unknown(value: argument)
+            }
+            self = s
+        }
+    }
+    
+    struct Descriptor {
+        let family: Family
+        let variant: Variant
+        let weight: Weight
+        let fontSize: CGFloat
+        let glyphSize: Glyph.Size
+    }
+    
     private let font: CTFont
     
     let glyphs: Array<Glyph>
@@ -27,28 +64,68 @@ struct Font {
         return 1.0
     }
     
-    static func sfsymbolsFonts() -> Array<URL> {
-        let maybeCFURLs = LSCopyApplicationURLsForBundleIdentifier("com.apple.SFSymbols" as CFString, nil)?.takeRetainedValue()
-        
-        guard let cfURLs = maybeCFURLs as? Array<URL> else { return [] }
-        
-        return cfURLs.compactMap { url -> URL? in
-            guard let appBundle = Bundle(url: url) else { return nil }
-            return appBundle.url(forResource: "SFSymbolsFallback", withExtension: "ttf")
+    static func bestFontMatching(url: URL?, descriptor: Descriptor) -> Font? {
+        if let u = url, let f = Font(url: u, descriptor: descriptor) {
+            return f
         }
+        
+        // we don't have a custom font, or it didn't work out
+        // can we find the built-in SF fonts
+        if let f = builtInFont(matching: descriptor) {
+            return f
+        }
+        
+        // we couldn't find the built-in SF fonts
+        // can we find the SFSymbols app?
+        if let f = sfsymbolsFont(matching: descriptor) {
+            return f
+        }
+        
+        return nil
     }
     
-    init?(url: URL, size: CGFloat, glyphSize: Glyph.Size, weight: Weight) {
+    private static func builtInFont(matching descriptor: Descriptor) -> Font? {
+        let name = "SF \(descriptor.family.rawValue) \(descriptor.variant.rawValue)"
+        
+        let manager = NSFontManager.shared
+        if let font = manager.font(withFamily: name, traits: [], weight: Int(descriptor.weight.rawValue), size: descriptor.fontSize) {
+            let ctFont = font as CTFont
+            if let parsedFont = Font(font: ctFont, descriptor: descriptor) {
+                return parsedFont
+            }
+        }
+        
+        return nil
+    }
+    
+    private static func sfsymbolsFont(matching descriptor: Descriptor) -> Font? {
+        let maybeCFURLs = LSCopyApplicationURLsForBundleIdentifier("com.apple.SFSymbols" as CFString, nil)?.takeRetainedValue()
+        
+        guard let cfURLs = maybeCFURLs as? Array<URL> else { return nil }
+        
+        for bundleURL in cfURLs {
+            guard let appBundle = Bundle(url: bundleURL) else { continue }
+            guard let fontURL = appBundle.url(forResource: "SFSymbolsFallback", withExtension: "ttf") else { continue }
+            if let f = Font(url: fontURL, descriptor: descriptor) { return f }
+        }
+        return nil
+    }
+    
+    init?(url: URL, descriptor: Descriptor) {
         guard let provider = CGDataProvider(url: url as CFURL) else { return nil }
         guard let cgFont = CGFont(provider) else { return nil }
         
         let attributes = [
             kCTFontTraitsAttribute: [
-                kCTFontWeightTrait: weight.rawValue
+                kCTFontWeightTrait: descriptor.weight.rawValue
             ]
         ]
         let ctAttributes = CTFontDescriptorCreateWithAttributes(attributes as CFDictionary)
-        let font = CTFontCreateWithGraphicsFont(cgFont, size, nil, ctAttributes)
+        let font = CTFontCreateWithGraphicsFont(cgFont, descriptor.fontSize, nil, ctAttributes)
+        self.init(font: font, descriptor: descriptor)
+    }
+    
+    init?(font: CTFont, descriptor: Descriptor) {
         
         guard let data = CTFontCopyDecodedSYMPData(font) else { return nil }
         guard let csv = String(data: data, encoding: .utf8) else { return nil }
@@ -57,11 +134,16 @@ struct Font {
         let csvLines = csv.components(separatedBy: "\r\n").dropFirst().dropLast()
         
         self.font = font
-        self.weight = weight
-        self.size = size
+        self.weight = descriptor.weight
+        self.size = descriptor.fontSize
         self.glyphs = csvLines.compactMap { line -> Glyph? in
-            return Glyph(size: glyphSize, pieces: CSVFields(line), inFont: font)
+            return Glyph(size: descriptor.glyphSize, pieces: CSVFields(line), inFont: font)
         }
+    }
+    
+    func glyphs(matching pattern: String) -> Array<Glyph> {
+        if pattern == "*" { return glyphs }
+        return glyphs.filter { fnmatch(pattern, $0.fullName, 0) == 0 }
     }
 }
 

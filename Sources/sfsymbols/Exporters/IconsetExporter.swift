@@ -11,8 +11,8 @@ struct IconsetExporter: Exporter {
 
     private let png = PNGExporter()
     
-    func exportGlyphs(in font: Font, matching pattern: String, to folder: URL) throws {
-        let assetFolder = folder.appendingPathComponent("SFSymbols.xcassets")
+    func exportGlyphs(in font: Font, using options: ExportOptions) throws {
+        let assetFolder = options.outputFolder.appendingPathComponent("SFSymbols.xcassets")
         try FileManager.default.createDirectory(at: assetFolder, withIntermediateDirectories: true, attributes: nil)
         
         let contentsURL = assetFolder.appendingPathComponent("Contents.json")
@@ -26,8 +26,7 @@ struct IconsetExporter: Exporter {
 """
         try Data(contentsJSON.utf8).write(to: contentsURL)
         
-        for glyph in font.glyphs {
-            guard fnmatch(pattern, glyph.fullName, 0) == 0 else { continue }
+        for glyph in font.glyphs(matching: options.matchPattern) {
             try autoreleasepool {
                 try exportGlyph(glyph, in: font, to: assetFolder)
             }
@@ -80,8 +79,8 @@ struct PDFAssetCatalog: Exporter {
     
     let pdf = PDFExporter()
     
-    func exportGlyphs(in font: Font, matching pattern: String, to folder: URL) throws {
-        let assetFolder = folder.appendingPathComponent("SFSymbols.xcassets")
+    func exportGlyphs(in font: Font, using options: ExportOptions) throws {
+        let assetFolder = options.outputFolder.appendingPathComponent("SFSymbols.xcassets")
         try FileManager.default.createDirectory(at: assetFolder, withIntermediateDirectories: true, attributes: nil)
         
         let contentsURL = assetFolder.appendingPathComponent("Contents.json")
@@ -95,8 +94,7 @@ struct PDFAssetCatalog: Exporter {
 """
         try Data(contentsJSON.utf8).write(to: contentsURL)
         
-        for glyph in font.glyphs {
-            guard fnmatch(pattern, glyph.fullName, 0) == 0 else { continue }
+        for glyph in font.glyphs(matching: options.matchPattern) {
             try autoreleasepool {
                 try exportGlyph(glyph, in: font, to: assetFolder)
             }

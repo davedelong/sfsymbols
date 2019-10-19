@@ -50,22 +50,21 @@ enum ExportFormat: String, CaseIterable, ArgumentKind {
 }
 
 protocol Exporter {
-    func exportGlyphs(in font: Font, matching pattern: String, to folder: URL) throws
+    func exportGlyphs(in font: Font, using options: ExportOptions) throws
     func exportGlyph(_ glyph: Glyph, in font: Font, to folder: URL) throws
     func data(for glyph: Glyph, in font: Font) -> Data
 }
 
 extension Exporter {
-    func exportGlyphs(in font: Font, matching pattern: String, to folder: URL) throws {
+    func exportGlyphs(in font: Font, using options: ExportOptions) throws {
         var isDirectory: ObjCBool = false
-        if FileManager.default.fileExists(atPath: folder.path, isDirectory: &isDirectory) == false || isDirectory.boolValue == false {
-            try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true, attributes: nil)
+        if FileManager.default.fileExists(atPath: options.outputFolder.path, isDirectory: &isDirectory) == false || isDirectory.boolValue == false {
+            try FileManager.default.createDirectory(at: options.outputFolder, withIntermediateDirectories: true, attributes: nil)
         }
         
-        for glyph in font.glyphs {
-            guard fnmatch(pattern, glyph.fullName, 0) == 0 else { continue }
+        for glyph in font.glyphs(matching: options.matchPattern) {
             try autoreleasepool {
-                try exportGlyph(glyph, in: font, to: folder)
+                try exportGlyph(glyph, in: font, to: options.outputFolder)
             }
         }
     }
