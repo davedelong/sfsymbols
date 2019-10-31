@@ -7,22 +7,8 @@
 
 import Foundation
 import AppKit
-import SPMUtility
 
-enum ExportFormat: String, CaseIterable, ArgumentKind {
-    
-    static var completion: ShellCompletion {
-        let values = allCases.map { (value: $0.rawValue, description: $0.rawValue) }
-        return .values(values)
-    }
-    
-    init(argument: String) throws {
-        if let f = ExportFormat(rawValue: argument) {
-            self = f
-        } else {
-            throw ArgumentConversionError.custom("Unknown format '\(argument)'")
-        }
-    }
+public enum ExportFormat: String, CaseIterable {
     
     case svg = "svg"
     case iosSwift = "ios-swift"
@@ -34,7 +20,7 @@ enum ExportFormat: String, CaseIterable, ArgumentKind {
     case iconset = "iconset"
     case iconsetPDF = "iconset-pdf"
     
-    var exporter: Exporter {
+    public var exporter: Exporter {
         switch self {
             case .svg: return SVGExporter()
             case .iosSwift: return iOSSwiftExporter()
@@ -49,14 +35,14 @@ enum ExportFormat: String, CaseIterable, ArgumentKind {
     }
 }
 
-protocol Exporter {
+public protocol Exporter {
     func exportGlyphs(in font: Font, using options: ExportOptions) throws
     func exportGlyph(_ glyph: Glyph, in font: Font, to folder: URL) throws
     func data(for glyph: Glyph, in font: Font) -> Data
 }
 
 extension Exporter {
-    func exportGlyphs(in font: Font, using options: ExportOptions) throws {
+    public func exportGlyphs(in font: Font, using options: ExportOptions) throws {
         var isDirectory: ObjCBool = false
         if FileManager.default.fileExists(atPath: options.outputFolder.path, isDirectory: &isDirectory) == false || isDirectory.boolValue == false {
             try FileManager.default.createDirectory(at: options.outputFolder, withIntermediateDirectories: true, attributes: nil)

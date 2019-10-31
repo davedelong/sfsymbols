@@ -1,5 +1,6 @@
 import Foundation
 import SPMUtility
+import SFSymbolsCore
 
 // The first argument is always the executable, drop it
 let arguments = Array(CommandLine.arguments.dropFirst())

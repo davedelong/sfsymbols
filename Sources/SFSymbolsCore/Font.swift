@@ -9,62 +9,63 @@ import Foundation
 import CoreServices
 import AppKit
 import CommonCrypto
-import SPMUtility
 
-// SPMUtility declares its own URL type, but we want "URL" to mean Foundation's version
-typealias URL = Foundation.URL
+public extension NSFont.Weight {
+    static var knownWeights = [
+        ("ultralight", Font.Weight.ultraLight),
+        ("thin", Font.Weight.thin),
+        ("light", Font.Weight.light),
+        ("regular", Font.Weight.regular),
+        ("medium", Font.Weight.medium),
+        ("semibold", Font.Weight.semibold),
+        ("bold", Font.Weight.bold),
+        ("heavy", Font.Weight.heavy),
+        ("black", Font.Weight.black),
+    ]
+}
 
-struct Font {
-    typealias Weight = NSFont.Weight
+public struct Font {
+    public typealias Weight = NSFont.Weight
     
-    enum Family: String, CaseIterable, ArgumentKind {
-        static let completion: ShellCompletion = .values(allCases.map { (value: $0.rawValue, description: $0.rawValue) })
-        
+    public enum Family: String, CaseIterable {
         case pro = "Pro"
         case compact = "Compact"
-        
-        init(argument: String) throws {
-            guard let s = Family(rawValue: argument) else {
-                throw ArgumentConversionError.unknown(value: argument)
-            }
-            self = s
-        }
     }
     
-    enum Variant: String, CaseIterable, ArgumentKind {
-        static let completion: ShellCompletion = .values(allCases.map { (value: $0.rawValue, description: $0.rawValue) })
-        
+    public enum Variant: String, CaseIterable {
         case display = "Display"
         case rounded = "Rounded"
         case text = "Text"
-        
-        init(argument: String) throws {
-            guard let s = Variant(rawValue: argument) else {
-                throw ArgumentConversionError.unknown(value: argument)
-            }
-            self = s
-        }
     }
     
-    struct Descriptor {
-        let family: Family
-        let variant: Variant
-        let weight: Weight
-        let fontSize: CGFloat
-        let glyphSize: Glyph.Size
+    public struct Descriptor {
+        
+        public let family: Family
+        public let variant: Variant
+        public let weight: Weight
+        public let fontSize: CGFloat
+        public let glyphSize: Glyph.Size
+        
+        public init(family: Font.Family, variant: Font.Variant, weight: Font.Weight, fontSize: CGFloat, glyphSize: Glyph.Size) {
+            self.family = family
+            self.variant = variant
+            self.weight = weight
+            self.fontSize = fontSize
+            self.glyphSize = glyphSize
+        }
     }
     
     private let font: CTFont
     
-    let glyphs: Array<Glyph>
-    let weight: Weight
-    let size: CGFloat
+    public let glyphs: Array<Glyph>
+    public let weight: Weight
+    public let size: CGFloat
     
-    var strokeWidth: CGFloat {
+    public var strokeWidth: CGFloat {
         return 1.0
     }
     
-    static func bestFontMatching(url: URL?, descriptor: Descriptor) -> Font? {
+    public static func bestFontMatching(url: URL?, descriptor: Descriptor) -> Font? {
         if let u = url, let f = Font(url: u, descriptor: descriptor) {
             return f
         }
@@ -111,7 +112,7 @@ struct Font {
         return nil
     }
     
-    init?(url: URL, descriptor: Descriptor) {
+    public init?(url: URL, descriptor: Descriptor) {
         guard let provider = CGDataProvider(url: url as CFURL) else { return nil }
         guard let cgFont = CGFont(provider) else { return nil }
         
@@ -125,7 +126,7 @@ struct Font {
         self.init(font: font, descriptor: descriptor)
     }
     
-    init?(font: CTFont, descriptor: Descriptor) {
+    public init?(font: CTFont, descriptor: Descriptor) {
         
         guard let data = CTFontCopyDecodedSYMPData(font) else { return nil }
         guard let csv = String(data: data, encoding: .utf8) else { return nil }
@@ -141,39 +142,10 @@ struct Font {
         }
     }
     
-    func glyphs(matching pattern: String) -> Array<Glyph> {
+    public func glyphs(matching pattern: String) -> Array<Glyph> {
         if pattern == "*" { return glyphs }
         return glyphs.filter { fnmatch(pattern, $0.fullName, 0) == 0 }
     }
-}
-
-private let weights = [
-    ("ultralight", Font.Weight.ultraLight),
-    ("thin", Font.Weight.thin),
-    ("light", Font.Weight.light),
-    ("regular", Font.Weight.regular),
-    ("medium", Font.Weight.medium),
-    ("semibold", Font.Weight.semibold),
-    ("bold", Font.Weight.bold),
-    ("heavy", Font.Weight.heavy),
-    ("black", Font.Weight.black),
-]
-
-extension Font.Weight: ArgumentKind {
-    
-    public init(argument: String) throws {
-        guard let pair = weights.first(where: { $0.0 == argument }) else {
-            throw ArgumentConversionError.custom("Unknown argument value: '\(argument)'")
-        }
-        self = pair.1
-    }
-    
-    public static var completion: ShellCompletion {
-        let values = weights.map { (value: $0.0, description: $0.0) }
-        return .values(values)
-    }
-    
-    
 }
 
 private func CTFontCopyDecodedSYMPData(_ font: CTFont) -> Data? {

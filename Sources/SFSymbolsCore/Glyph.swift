@@ -6,29 +6,16 @@
 //
 
 import Foundation
-import SPMUtility
 
-struct Glyph {
+public struct Glyph {
     
-    enum Size: String, CaseIterable, ArgumentKind {
-        
-        init(argument: String) throws {
-            guard let s = Size(rawValue: argument) else {
-                throw ArgumentConversionError.custom("Unknown symbol size '\(argument)'")
-            }
-            self = s
-        }
-        
-        static var completion: ShellCompletion {
-            return .values(allCases.map { (value: $0.rawValue, description: $0.rawValue) })
-        }
-        
+    public enum Size: String, CaseIterable {
         case small
         case medium
         case large
     }
     
-    enum Element {
+    public enum Element {
         case move(CGPoint)
         case line(CGPoint)
         case quadCurve(CGPoint, CGPoint)
@@ -40,22 +27,22 @@ struct Glyph {
     private let originOffset: CGPoint
     private let glyph: CGGlyph
     
-    let cgPath: CGPath
+    public let cgPath: CGPath
     
-    let identifierName: String
-    let fullName: String
-    let baseName: String
-    let isFilled: Bool
-    let variant: String?
-    let isRTL: Bool
+    public let identifierName: String
+    public let fullName: String
+    public let baseName: String
+    public let isFilled: Bool
+    public let variant: String?
+    public let isRTL: Bool
     
-    let categories: Array<String>
+    public let categories: Array<String>
     
-    let boundingBox: CGRect
-    let allowsMirroring: Bool
-    let appleOnly: Bool
-    let keywords: Array<String>
-    let restrictionNote: String?
+    public let boundingBox: CGRect
+    public let allowsMirroring: Bool
+    public let appleOnly: Bool
+    public let keywords: Array<String>
+    public let restrictionNote: String?
     
     
     init?(size: Size, pieces: Array<String>, inFont font: CTFont) {
@@ -169,7 +156,7 @@ struct Glyph {
         }
     }
     
-    func enumerateElements(enumerator: (CGPoint?, Element) -> Void) {
+    public func enumerateElements(enumerator: (CGPoint?, Element) -> Void) {
         
         var currentPoint: CGPoint?
         cgPath.applyWithBlock { elementRef in
