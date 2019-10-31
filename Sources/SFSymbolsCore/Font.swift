@@ -65,54 +65,7 @@ public struct Font {
         return 1.0
     }
     
-    public static func bestFontMatching(url: URL?, descriptor: Descriptor) -> Font? {
-        if let u = url, let f = Font(url: u, descriptor: descriptor) {
-            return f
-        }
-        
-        // we don't have a custom font, or it didn't work out
-        // can we find the built-in SF fonts
-        if let f = builtInFont(matching: descriptor) {
-            return f
-        }
-        
-        // we couldn't find the built-in SF fonts
-        // can we find the SFSymbols app?
-        if let f = sfsymbolsFont(matching: descriptor) {
-            return f
-        }
-        
-        return nil
-    }
-    
-    private static func builtInFont(matching descriptor: Descriptor) -> Font? {
-        let name = "SF \(descriptor.family.rawValue) \(descriptor.variant.rawValue)"
-        
-        let manager = NSFontManager.shared
-        if let font = manager.font(withFamily: name, traits: [], weight: Int(descriptor.weight.rawValue), size: descriptor.fontSize) {
-            let ctFont = font as CTFont
-            if let parsedFont = Font(font: ctFont, descriptor: descriptor) {
-                return parsedFont
-            }
-        }
-        
-        return nil
-    }
-    
-    private static func sfsymbolsFont(matching descriptor: Descriptor) -> Font? {
-        let maybeCFURLs = LSCopyApplicationURLsForBundleIdentifier("com.apple.SFSymbols" as CFString, nil)?.takeRetainedValue()
-        
-        guard let cfURLs = maybeCFURLs as? Array<URL> else { return nil }
-        
-        for bundleURL in cfURLs {
-            guard let appBundle = Bundle(url: bundleURL) else { continue }
-            guard let fontURL = appBundle.url(forResource: "SFSymbolsFallback", withExtension: "ttf") else { continue }
-            if let f = Font(url: fontURL, descriptor: descriptor) { return f }
-        }
-        return nil
-    }
-    
-    public init?(url: URL, descriptor: Descriptor) {
+    internal init?(url: URL, descriptor: Descriptor) {
         guard let provider = CGDataProvider(url: url as CFURL) else { return nil }
         guard let cgFont = CGFont(provider) else { return nil }
         
@@ -126,7 +79,7 @@ public struct Font {
         self.init(font: font, descriptor: descriptor)
     }
     
-    public init?(font: CTFont, descriptor: Descriptor) {
+    internal init?(font: CTFont, descriptor: Descriptor) {
         
         guard let data = CTFontCopyDecodedSYMPData(font) else { return nil }
         guard let csv = String(data: data, encoding: .utf8) else { return nil }
