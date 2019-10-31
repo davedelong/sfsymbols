@@ -7,11 +7,11 @@
 
 import Foundation
 
-struct IconsetExporter: Exporter {
+public struct IconsetExporter: Exporter {
 
     private let png = PNGExporter()
     
-    func exportGlyphs(in font: Font, using options: ExportOptions) throws {
+    public func exportGlyphs(in font: Font, using options: ExportOptions) throws {
         let assetFolder = options.outputFolder.appendingPathComponent("SFSymbols.xcassets")
         try FileManager.default.createDirectory(at: assetFolder, withIntermediateDirectories: true, attributes: nil)
         
@@ -33,7 +33,7 @@ struct IconsetExporter: Exporter {
         }
     }
     
-    func exportGlyph(_ glyph: Glyph, in font: Font, to folder: URL) throws {
+    public func exportGlyph(_ glyph: Glyph, in font: Font, to folder: URL) throws {
         let iconset = folder.appendingPathComponent("\(glyph.fullName).iconset")
         try FileManager.default.createDirectory(at: iconset, withIntermediateDirectories: true, attributes: nil)
         let contents = """
@@ -71,15 +71,15 @@ struct IconsetExporter: Exporter {
         }
     }
     
-    func data(for glyph: Glyph, in font: Font) -> Data { fatalError() }
+    public func data(for glyph: Glyph, in font: Font) -> Data { fatalError() }
     
 }
 
-struct PDFAssetCatalog: Exporter {
+public struct PDFAssetCatalog: Exporter {
     
     let pdf = PDFExporter()
     
-    func exportGlyphs(in font: Font, using options: ExportOptions) throws {
+    public func exportGlyphs(in font: Font, using options: ExportOptions) throws {
         let assetFolder = options.outputFolder.appendingPathComponent("SFSymbols.xcassets")
         try FileManager.default.createDirectory(at: assetFolder, withIntermediateDirectories: true, attributes: nil)
         
@@ -101,7 +101,7 @@ struct PDFAssetCatalog: Exporter {
         }
     }
     
-    func exportGlyph(_ glyph: Glyph, in font: Font, to folder: URL) throws {
+    public func exportGlyph(_ glyph: Glyph, in font: Font, to folder: URL) throws {
         let imageset = folder.appendingPathComponent("\(glyph.fullName).imageset")
         try FileManager.default.createDirectory(at: imageset, withIntermediateDirectories: true, attributes: nil)
         let mirrors = glyph.allowsMirroring ? "" : ",\n      \"language-direction\" : \"left-to-right\""
@@ -130,7 +130,7 @@ struct PDFAssetCatalog: Exporter {
         try pdfData.write(to: file)
     }
     
-    func data(for glyph: Glyph, in font: Font) -> Data {
+    public func data(for glyph: Glyph, in font: Font) -> Data {
         return pdf.data(for: glyph, in: font)
     }
     

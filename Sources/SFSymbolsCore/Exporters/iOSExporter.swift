@@ -7,20 +7,20 @@
 
 import Foundation
 
-struct iOSSwiftExporter: Exporter {
+public struct iOSSwiftExporter: Exporter {
     
     private func format(_ point: CGPoint) -> String {
         return "CGPoint(x: \(point.x), y: \(point.y))"
     }
     
-    func exportGlyph(_ glyph: Glyph, in font: Font, to folder: URL) throws {
+    public func exportGlyph(_ glyph: Glyph, in font: Font, to folder: URL) throws {
         let name = "\(glyph.fullName).swift"
         let file = folder.appendingPathComponent(name)
         let glyphData = data(for: glyph, in: font)
         try glyphData.write(to: file)
     }
     
-    func data(for glyph: Glyph, in font: Font) -> Data {
+    public func data(for glyph: Glyph, in font: Font) -> Data {
         var restriction = ""
         if let r = glyph.restrictionNote {
             restriction = "\n    // \(r)"
@@ -60,13 +60,13 @@ struct iOSSwiftExporter: Exporter {
     }
 }
 
-struct iOSObjCExporter: Exporter {
+public struct iOSObjCExporter: Exporter {
     
     private func format(_ point: CGPoint) -> String {
         return "CGPoint(x: \(point.x), y: \(point.y))"
     }
     
-    func exportGlyph(_ glyph: Glyph, in font: Font, to folder: URL) throws {
+    public func exportGlyph(_ glyph: Glyph, in font: Font, to folder: URL) throws {
         let name = "UIBezierPath+\(glyph.fullName).m"
         let file = folder.appendingPathComponent(name)
         let glyphData = data(for: glyph, in: font)
@@ -90,7 +90,7 @@ struct iOSObjCExporter: Exporter {
         try Data(header.utf8).write(to: headerFile)
     }
     
-    func data(for glyph: Glyph, in font: Font) -> Data {
+    public func data(for glyph: Glyph, in font: Font) -> Data {
         let header = """
         #import "UIBezierPath+\(glyph.fullName).h"
 

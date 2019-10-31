@@ -7,16 +7,16 @@
 
 import Cocoa
 
-struct PDFExporter: Exporter {
+public struct PDFExporter: Exporter {
     
-    func exportGlyph(_ glyph: Glyph, in font: Font, to folder: URL) throws {
+    public func exportGlyph(_ glyph: Glyph, in font: Font, to folder: URL) throws {
         let name = "\(glyph.fullName).pdf"
         let file = folder.appendingPathComponent(name)
         let glyphData = data(for: glyph, in: font)
         try glyphData.write(to: file)
     }
     
-    func data(for glyph: Glyph, in font: Font) -> Data {
+    public func data(for glyph: Glyph, in font: Font) -> Data {
         let destination = NSMutableData()
         guard let dataConsumer = CGDataConsumer(data: destination as CFMutableData) else { return Data() }
         

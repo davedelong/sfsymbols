@@ -7,9 +7,9 @@
 
 import Cocoa
 
-struct macOSSwiftExporter: Exporter {
+public struct macOSSwiftExporter: Exporter {
     
-    func exportGlyph(_ glyph: Glyph, in font: Font, to folder: URL) throws {
+    public func exportGlyph(_ glyph: Glyph, in font: Font, to folder: URL) throws {
         let name = "\(glyph.fullName).swift"
         let file = folder.appendingPathComponent(name)
         let glyphData = data(for: glyph, in: font)
@@ -20,7 +20,7 @@ struct macOSSwiftExporter: Exporter {
         return "CGPoint(x: \(point.x), y: \(point.y))"
     }
     
-    func data(for glyph: Glyph, in font: Font) -> Data {
+    public func data(for glyph: Glyph, in font: Font) -> Data {
         var restriction = ""
         if let r = glyph.restrictionNote {
             restriction = "\n    // \(r)"
@@ -65,9 +65,9 @@ struct macOSSwiftExporter: Exporter {
     
 }
 
-struct macOSObjCExporter: Exporter {
+public struct macOSObjCExporter: Exporter {
     
-    func exportGlyph(_ glyph: Glyph, in font: Font, to folder: URL) throws {
+    public func exportGlyph(_ glyph: Glyph, in font: Font, to folder: URL) throws {
         let name = "NSBezierPath+\(glyph.fullName).m"
         let file = folder.appendingPathComponent(name)
         let glyphData = data(for: glyph, in: font)
@@ -95,7 +95,7 @@ struct macOSObjCExporter: Exporter {
         return "CGPoint(x: \(point.x), y: \(point.y))"
     }
     
-    func data(for glyph: Glyph, in font: Font) -> Data {
+    public func data(for glyph: Glyph, in font: Font) -> Data {
         let header = """
         #import "NSBezierPath+\(glyph.fullName).h"
 

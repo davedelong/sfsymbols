@@ -7,20 +7,20 @@
 
 import Foundation
 
-struct SVGExporter: Exporter {
+public struct SVGExporter: Exporter {
     
     private func format(_ point: CGPoint) -> String {
         return "\(point.x),\(point.y)"
     }
     
-    func exportGlyph(_ glyph: Glyph, in font: Font, to folder: URL) throws {
+    public func exportGlyph(_ glyph: Glyph, in font: Font, to folder: URL) throws {
         let name = "\(glyph.fullName).svg"
         let file = folder.appendingPathComponent(name)
         let glyphData = data(for: glyph, in: font)
         try glyphData.write(to: file)
     }
      
-    func data(for glyph: Glyph, in font: Font) -> Data {
+    public func data(for glyph: Glyph, in font: Font) -> Data {
         var lines = Array<String>()
         if let restriction = glyph.restrictionNote {
             lines.append("<!--")

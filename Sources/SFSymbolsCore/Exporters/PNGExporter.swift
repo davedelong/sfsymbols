@@ -7,16 +7,16 @@
 
 import Cocoa
 
-struct PNGExporter: Exporter {
+public struct PNGExporter: Exporter {
     
-    func exportGlyph(_ glyph: Glyph, in font: Font, to folder: URL) throws {
+    public func exportGlyph(_ glyph: Glyph, in font: Font, to folder: URL) throws {
         let name = "\(glyph.fullName).png"
         let file = folder.appendingPathComponent(name)
         let glyphData = data(for: glyph, in: font)
         try glyphData.write(to: file)
     }
     
-    func data(for glyph: Glyph, in font: Font, scale: CGFloat) -> Data {
+    public func data(for glyph: Glyph, in font: Font, scale: CGFloat) -> Data {
         var size = glyph.boundingBox.size
         size.width *= scale
         size.height *= scale
@@ -35,7 +35,7 @@ struct PNGExporter: Exporter {
         return image.pngData
     }
     
-    func data(for glyph: Glyph, in font: Font) -> Data {
+    public func data(for glyph: Glyph, in font: Font) -> Data {
         return data(for: glyph, in: font, scale: 1.0)
     }
     
