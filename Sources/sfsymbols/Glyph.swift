@@ -49,6 +49,8 @@ struct Glyph {
     let variant: String?
     let isRTL: Bool
     
+    let categories: Array<String>
+    
     let boundingBox: CGRect
     let allowsMirroring: Bool
     let appleOnly: Bool
@@ -114,6 +116,7 @@ struct Glyph {
         
         self.appleOnly = pieces[4] == "TRUE"
         self.keywords = CSVFields(pieces[0])
+        self.categories = CSVFields(pieces[1])
     }
     
     private init?(v1Pieces pieces: Array<String>, size: Size, inFont font: CTFont) {
@@ -153,7 +156,8 @@ struct Glyph {
         self.isRTL = pieces[17] != ""
         
         let keywords = pieces[39].trimmingCharacters(in: CharacterSet(charactersIn: "\""))
-        self.keywords = CSVFields(keywords).map { $0.trimmingCharacters(in: .whitespaces) }
+        self.keywords = CSVFields(keywords)
+        self.categories = CSVFields(pieces[38])
         
         self.appleOnly = Bool(pieces[8].lowercased()) ?? false
         self.allowsMirroring = pieces[43] == "TRUE"

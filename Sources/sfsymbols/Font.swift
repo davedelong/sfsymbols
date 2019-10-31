@@ -135,7 +135,7 @@ internal func CSVFields(_ line: String) -> Array<String> {
         if insideQuote == false {
             if character == "," {
                 let subString = line[fieldStart ..< currentIndex]
-                fields.append(String(subString))
+                fields.append(String(subString).trimmingCharacters(in: .whitespaces))
                 fieldStart = line.index(after: currentIndex)
             } else if character == "\"" {
                 insideQuote = true
@@ -149,7 +149,7 @@ internal func CSVFields(_ line: String) -> Array<String> {
     }
     
     let lastField = line[fieldStart ..< line.endIndex]
-    fields.append(String(lastField))
+    fields.append(String(lastField).trimmingCharacters(in: .whitespaces))
     
     return fields
 }
