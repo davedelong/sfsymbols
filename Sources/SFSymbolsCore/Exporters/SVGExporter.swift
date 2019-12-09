@@ -13,14 +13,14 @@ public struct SVGExporter: Exporter {
         return "\(point.x),\(point.y)"
     }
     
-    public func exportGlyph(_ glyph: Glyph, in font: Font, to folder: URL) throws {
+    public func exportGlyph(_ glyph: Glyph, in font: Font, to folder: URL, theme: ThemeMode) throws {
         let name = "\(glyph.fullName).svg"
         let file = folder.appendingPathComponent(name)
-        let glyphData = data(for: glyph, in: font)
+        let glyphData = data(for: glyph, in: font, theme: theme)
         try glyphData.write(to: file)
     }
      
-    public func data(for glyph: Glyph, in font: Font) -> Data {
+    public func data(for glyph: Glyph, in font: Font, theme: ThemeMode) -> Data {
         var lines = Array<String>()
         if let restriction = glyph.restrictionNote {
             lines.append("<!--")
