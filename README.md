@@ -53,8 +53,8 @@ There are several options you may specify:
     - `svg`: SVG files
     - `png`: PNG images
     - `pdf`: PDF images 
-    - `iconset`: An `SFSymbols.xcassets` bundle of 1x, 2x, and 3x PNGs
-    - `iconset-pdf`: An `SFSymbols.xcassets` bundle of vector PDFs
+    - `iconset`: An `SFSymbols.xcassets` bundle of 1x, 2x, and 3x template PNGs
+    - `iconset-pdf`: An `SFSymbols.xcassets` bundle of vector template PDFs
     
     The default value is `svg`.
 
