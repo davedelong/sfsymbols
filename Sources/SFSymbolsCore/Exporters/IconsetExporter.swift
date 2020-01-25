@@ -58,6 +58,9 @@ public struct IconsetExporter: Exporter {
   "info" : {
     "version" : 1,
     "author" : "xcode"
+  },
+  "properties" : {
+    "template-rendering-intent" : "template"
   }
 }
 """
@@ -118,6 +121,7 @@ public struct PDFAssetCatalog: Exporter {
     "author" : "xcode"
   },
   "properties" : {
+    "template-rendering-intent" : "template",
     "preserves-vector-representation" : true
   }
 }
