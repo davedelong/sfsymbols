@@ -1,17 +1,17 @@
 import Foundation
-import SPMUtility
+import ArgumentParser
 import SFSymbolsCore
 
+extension SFSymbols {
 
-do {
-    // The first argument is always the executable, drop it
-    let arguments = Array(CommandLine.arguments.dropFirst())
-    let configuration = try parseConfiguration(arguments)
-    
-    try configuration.run()
-    
-} catch let error as ArgumentParserError {
-    print(error.description)
-} catch let error {
-    print(error.localizedDescription)
+    func run() {
+        do {
+            let configuration = try constructConfiguration()
+            try configuration.run()
+        } catch {
+            print(error.localizedDescription)
+        }
+    }
 }
+
+SFSymbols.main()
