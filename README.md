@@ -18,11 +18,19 @@ Open the `Package.swift` and build the project, then run the resulting `sfsymbol
 
 ## Usage
 
+Output all icons to a folder called symbols in png format
 ```sh
 sfsymbols --output symbols --format png
 ```
 
+Output all icons with `heart` in the symbol name in svg format to the current directory
+```sh
+sfsymbols --symbol-name heart.*
+```
+
 There are several options you may specify:
+
+- `--symbol-name`: A pattern to limit which symbols are exported. Example: `*.fill` or `*cloud*`.
 
 - `--font-file`: An path to a specific SF Symbols ttf file. If you leave out this argument, then `sfsymbols` will attempt to locate an installed copy of `SF Symbols.app` on your machine and use the font packaged inside there.
 
