@@ -9,14 +9,14 @@ import Cocoa
 
 public struct PDFExporter: Exporter {
     
-    public func exportGlyph(_ glyph: Glyph, in font: Font, to folder: URL) throws {
+    public func exportGlyph(_ glyph: Glyph, in font: Font, colored hexColor: String, to folder: URL) throws {
         let name = "\(glyph.fullName).pdf"
         let file = folder.appendingPathComponent(name)
-        let glyphData = data(for: glyph, in: font)
+        let glyphData = data(for: glyph, in: font, colored: hexColor)
         try glyphData.write(to: file)
     }
     
-    public func data(for glyph: Glyph, in font: Font) -> Data {
+    public func data(for glyph: Glyph, in font: Font, colored hexColor: String) -> Data {
         let destination = NSMutableData()
         guard let dataConsumer = CGDataConsumer(data: destination as CFMutableData) else { return Data() }
         
@@ -30,7 +30,7 @@ public struct PDFExporter: Exporter {
         pdf.setShouldAntialias(true)
         pdf.addPath(glyph.cgPath)
 
-        pdf.setFillColor(NSColor.black.cgColor)
+        pdf.setFillColor(NSColor(hexString: hexColor).cgColor)
         pdf.fillPath()
         pdf.endPDFPage()
         pdf.closePDF()
