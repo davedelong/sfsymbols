@@ -1,3 +1,9 @@
+# MAINTAINER WANTED
+
+I don't have time (nor interest) in maintaining this project for much longer. If you're interested in taking it over, please contact me.
+
+---
+
 # `sfsymbols`
 
 `sfsymbols` is a quick-and-dirty command-line tool to export the shapes inside the SF Symbols font.
