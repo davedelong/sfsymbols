@@ -19,6 +19,7 @@ public enum ExportFormat: String, CaseIterable {
     case pdf = "pdf"
     case iconset = "iconset"
     case iconsetPDF = "iconset-pdf"
+    case imageset = "imageset"
     
     public var exporter: Exporter {
         switch self {
@@ -29,8 +30,9 @@ public enum ExportFormat: String, CaseIterable {
             case .macosObjC: return macOSObjCExporter()
             case .png: return PNGExporter()
             case .pdf: return PDFExporter()
-            case .iconset: return IconsetExporter()
+            case .iconset: return SetExporter(ext: "iconset")
             case .iconsetPDF: return PDFAssetCatalog()
+            case .imageset: return SetExporter(ext: "imageset")
         }
     }
 }

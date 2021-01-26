@@ -1,5 +1,5 @@
 //
-//  IconsetExporter.swift
+//  SetExporter.swift
 //  
 //
 //  Created by Dave DeLong on 9/19/19.
@@ -7,9 +7,14 @@
 
 import Foundation
 
-public struct IconsetExporter: Exporter {
+public struct SetExporter: Exporter {
 
     private let png = PNGExporter()
+    private let ext: String
+    
+    public init(ext: String = "iconset") {
+        self.ext = ext
+    }
     
     public func exportGlyphs(in font: Font, using options: ExportOptions) throws {
         let assetFolder = options.outputFolder.appendingPathComponent("SFSymbols.xcassets")
@@ -34,7 +39,7 @@ public struct IconsetExporter: Exporter {
     }
     
     public func exportGlyph(_ glyph: Glyph, in font: Font, to folder: URL) throws {
-        let iconset = folder.appendingPathComponent("\(glyph.fullName).iconset")
+        let iconset = folder.appendingPathComponent("\(glyph.fullName).\(ext)")
         try FileManager.default.createDirectory(at: iconset, withIntermediateDirectories: true, attributes: nil)
         let contents = """
 {
