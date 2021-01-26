@@ -9,7 +9,7 @@ extension SFSymbols {
             let configuration = try constructConfiguration()
             try configuration.run()
         } catch {
-            print(error.localizedDescription)
+            print("\(error)")
         }
     }
 }
