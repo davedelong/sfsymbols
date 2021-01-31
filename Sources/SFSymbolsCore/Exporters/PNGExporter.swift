@@ -9,14 +9,14 @@ import Cocoa
 
 public struct PNGExporter: Exporter {
     
-    public func exportGlyph(_ glyph: Glyph, in font: Font, to folder: URL) throws {
+    public func exportGlyph(_ glyph: Glyph, in font: Font, colored hexColor: String, to folder: URL) throws {
         let name = "\(glyph.fullName).png"
         let file = folder.appendingPathComponent(name)
-        let glyphData = data(for: glyph, in: font)
+        let glyphData = data(for: glyph, in: font, colored: hexColor)
         try glyphData.write(to: file)
     }
     
-    public func data(for glyph: Glyph, in font: Font, scale: CGFloat) -> Data {
+    public func data(for glyph: Glyph, in font: Font, scale: CGFloat, color: String) -> Data {
         var size = glyph.boundingBox.size
         size.width *= scale
         size.height *= scale
@@ -27,7 +27,7 @@ public struct PNGExporter: Exporter {
             context.setShouldAntialias(true)
             context.addPath(glyph.cgPath)
 
-            context.setFillColor(NSColor.black.cgColor)
+            context.setFillColor(NSColor(hexString: color).cgColor)
             context.fillPath()
             return true
         })
@@ -35,8 +35,8 @@ public struct PNGExporter: Exporter {
         return image.pngData
     }
     
-    public func data(for glyph: Glyph, in font: Font) -> Data {
-        return data(for: glyph, in: font, scale: 1.0)
+    public func data(for glyph: Glyph, in font: Font, colored hexColor: String) -> Data {
+        return data(for: glyph, in: font, scale: 1.0, color: hexColor)
     }
     
 }

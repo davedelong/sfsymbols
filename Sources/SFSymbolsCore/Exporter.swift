@@ -37,8 +37,8 @@ public enum ExportFormat: String, CaseIterable {
 
 public protocol Exporter {
     func exportGlyphs(in font: Font, using options: ExportOptions) throws
-    func exportGlyph(_ glyph: Glyph, in font: Font, to folder: URL) throws
-    func data(for glyph: Glyph, in font: Font) -> Data
+    func exportGlyph(_ glyph: Glyph, in font: Font, colored hexColor: String, to folder: URL) throws
+    func data(for glyph: Glyph, in font: Font, colored hexColor: String) -> Data
 }
 
 extension Exporter {
@@ -50,7 +50,7 @@ extension Exporter {
         
         for glyph in font.glyphs(matching: options.matchPattern) {
             try autoreleasepool {
-                try exportGlyph(glyph, in: font, to: options.outputFolder)
+                try exportGlyph(glyph, in: font, colored: options.color, to: options.outputFolder)
             }
         }
     }

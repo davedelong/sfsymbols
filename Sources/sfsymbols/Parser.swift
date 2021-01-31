@@ -67,12 +67,17 @@ struct SFSymbols: ParsableCommand {
 
     @Flag(help: "Log verbose information about how exporting is proceeding")
     var verbose: Bool
+  
+    @Option(default: "000000",
+            help: "An RGB or RGBA hex value for the color that the symbol should be exported as. Invalid values default to black. The # character is optional.")
+    var color: String
 
     func constructConfiguration() throws -> Configuration {
         let exportOptions = ExportOptions(
             verbose: verbose,
             outputFolder: URL(fileURLWithPath: output),
-            matchPattern: symbolName)
+            matchPattern: symbolName,
+            color: color)
         let fontDescriptor = Font.Descriptor(
             family: fontFamily,
             variant: fontVariant,

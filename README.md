@@ -72,6 +72,8 @@ There are several options you may specify:
     
     The default value is `svg`.
 
+- `--color`: An RGB or RGBA hex value for the color that the symbol should be exported as. Invalid values default to black. The # character is optional.
+
 ## Disclaimer
 
 This is posted mainly as a proof-of-concept. Use it at your own risk.
