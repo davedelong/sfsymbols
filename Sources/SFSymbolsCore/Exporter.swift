@@ -10,15 +10,15 @@ import AppKit
 
 public enum ExportFormat: String, CaseIterable {
     
-    case svg = "svg"
-    case iosSwift = "ios-swift"
-    case iosObjC = "ios-objc"
-    case macosSwift = "macos-swift"
-    case macosObjC = "macos-objc"
-    case png = "png"
-    case pdf = "pdf"
-    case iconset = "iconset"
-    case iconsetPDF = "iconset-pdf"
+    case svg
+    case iosSwift
+    case iosObjC
+    case macosSwift
+    case macosObjC
+    case png
+    case pdf
+    case iconset
+    case iconsetPDF
     
     public var exporter: Exporter {
         switch self {
