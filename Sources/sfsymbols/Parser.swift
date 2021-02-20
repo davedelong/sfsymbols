@@ -29,44 +29,32 @@ struct SFSymbols: ParsableCommand {
     @Option(help: "A path to the SFSymbols ttf file. If omitted, the font will be located in a copy of SF Symbols.app")
     var fontFile: String?
 
-    @Option(default: Font.Family(rawValue: "Pro"),
-            help: "The family of SF font to use",
-            transform: toFontFamily)
-    var fontFamily: Font.Family
+    @Option(help: "The family of SF font to use",transform: toFontFamily)
+    var fontFamily: Font.Family = .Pro
 
-    @Option(default: Font.Variant(rawValue: "Display"),
-            help: "The family of SF font to use",
-            transform: toFontVariant)
-    var fontVariant: Font.Variant
+    @Option(help: "The family of SF font to use",transform: toFontVariant)
+    var fontVariant: Font.Variant = .Display
 
-    @Option(default: Font.Weight.regular,
-            help: "The weight of the SFSymbols font to use",
-            transform: toFontWeight)
-    var fontWeight: Font.Weight
+    @Option(help: "The weight of the SFSymbols font to use",transform: toFontWeight)
+    var fontWeight: Font.Weight = Font.Weight.regular
 
-    @Option(default: 44, help: "The size of symbol to use.")
-    var fontSize: Int
+    @Option(help: "The size of symbol to use.")
+    var fontSize: Int = 44
 
-    @Option(default: Glyph.Size(rawValue: "medium"),
-            help: "The size of symbol to use",
-            transform: toGlyphSize)
-    var symbolSize: Glyph.Size
+    @Option(help: "The size of symbol to use",transform: toGlyphSize)
+    var symbolSize: Glyph.Size = .medium
 
-    @Option(default: "*",
-            help: "A pattern to limit which symbols are exported. Example: '*.fill' or '*cloud*'")
-    var symbolName: String
+    @Option(help: "A pattern to limit which symbols are exported. Example: '*.fill' or '*cloud*'")
+    var symbolName: String = "*"
 
-    @Option(default: ExportFormat(rawValue: "svg"),
-            help: "The formatter to use when exporting",
-            transform: toExportFormat)
-    var format: ExportFormat
+    @Option(help: "The formatter to use when exporting",transform: toExportFormat)
+    var format: ExportFormat = .svg
 
-    @Option(default: ".",
-            help: "A path to the folder where symbols will be exported.")
-    var output: String
+    @Option(help: "A path to the folder where symbols will be exported.")
+    var output: String = "."
 
     @Flag(help: "Log verbose information about how exporting is proceeding")
-    var verbose: Bool
+	var verbose: Bool = false
 
     func constructConfiguration() throws -> Configuration {
         let exportOptions = ExportOptions(

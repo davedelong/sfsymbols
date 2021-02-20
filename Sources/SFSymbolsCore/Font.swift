@@ -28,14 +28,14 @@ public struct Font {
     public typealias Weight = NSFont.Weight
     
     public enum Family: String, CaseIterable {
-        case pro = "Pro"
-        case compact = "Compact"
+        case Pro
+        case Compact
     }
     
     public enum Variant: String, CaseIterable {
-        case display = "Display"
-        case rounded = "Rounded"
-        case text = "Text"
+        case Display
+        case Rounded
+        case Text
     }
     
     public struct Descriptor {
